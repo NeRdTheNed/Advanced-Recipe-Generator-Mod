@@ -43,10 +43,9 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@Mod(modid = ARG.NAME, name = ARG.NAME, version = ARG.VERSION)
+@Mod(modid = ARG.NAME)
 public class ARG {
 	public static final String NAME = "Advanced-Recipe-Generator";
-	public static final String VERSION = "${version}";
 
 	@Instance("Advanced-Recipe-Generator")
 	public static ARG instance;
@@ -58,7 +57,7 @@ public class ARG {
 
 	@EventHandler
 	public void load(FMLInitializationEvent evt) {
-		argLog.info("Starting " + NAME + " #${buildnumber} " + VERSION + " (Built for Minecraft/Forge ${mc_apiversion}");
+		argLog.info("Starting " + NAME);
 		argLog.info("Copyright (c) Flow86, 2012-2014");
 
 		MinecraftForge.EVENT_BUS.register(this);
