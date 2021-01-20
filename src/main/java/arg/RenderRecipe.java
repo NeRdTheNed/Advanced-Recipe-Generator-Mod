@@ -48,15 +48,15 @@ class RenderRecipe extends GuiContainer {
 		this.name = name;
 		mc = Minecraft.getMinecraft();
 		fontRendererObj = mc.fontRenderer;
-		TileEntityRendererDispatcher tileEntityRendererDispatcher = TileEntityRendererDispatcher.instance;
+		final TileEntityRendererDispatcher tileEntityRendererDispatcher = TileEntityRendererDispatcher.instance;
 		TextureManager renderEngine = tileEntityRendererDispatcher.field_147553_e;
 
 		if (renderEngine == null) {
 			renderEngine = mc.renderEngine;
-			Iterator iterator = tileEntityRendererDispatcher.mapSpecialRenderers.values().iterator();
+			final Iterator iterator = tileEntityRendererDispatcher.mapSpecialRenderers.values().iterator();
 
 			while (iterator.hasNext()) {
-				TileEntitySpecialRenderer tileentityspecialrenderer = (TileEntitySpecialRenderer) iterator.next();
+				final TileEntitySpecialRenderer tileentityspecialrenderer = (TileEntitySpecialRenderer) iterator.next();
 				tileentityspecialrenderer.func_147497_a(tileEntityRendererDispatcher);
 			}
 		}
@@ -69,7 +69,7 @@ class RenderRecipe extends GuiContainer {
 	}
 
 	public ContainerCraft getCraftingContainer() {
-		return (ContainerCraft) this.inventorySlots;
+		return (ContainerCraft) inventorySlots;
 	}
 
 	/**
@@ -77,10 +77,10 @@ class RenderRecipe extends GuiContainer {
 	 */
 	@Override
 	public void drawScreen(int par1, int par2, float par3) {
-		this.drawDefaultBackground();
-		int k = this.guiLeft;
-		int l = this.guiTop;
-		this.drawGuiContainerBackgroundLayer(par3, par1, par2);
+		drawDefaultBackground();
+		final int k = guiLeft;
+		final int l = guiTop;
+		drawGuiContainerBackgroundLayer(par3, par1, par2);
 		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 		RenderHelper.disableStandardItemLighting();
 		GL11.glDisable(GL11.GL_LIGHTING);
@@ -90,8 +90,8 @@ class RenderRecipe extends GuiContainer {
 		GL11.glTranslatef(k, l, 0.0F);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-		short short1 = 240;
-		short short2 = 240;
+		final short short1 = 240;
+		final short short2 = 240;
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, short1 / 1.0F, short2 / 1.0F);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -101,11 +101,11 @@ class RenderRecipe extends GuiContainer {
 		incredientList.clear();
 
 		for (int j1 = 1; j1 < inventorySlots.inventorySlots.size(); ++j1) {
-			Slot slot = (Slot) inventorySlots.inventorySlots.get(j1);
+			final Slot slot = (Slot) inventorySlots.inventorySlots.get(j1);
 			drawSlotInventory(slot);
 		}
 
-		this.drawGuiContainerForegroundLayer(par1, par2);
+		drawGuiContainerForegroundLayer(par1, par2);
 
 		GL11.glPopMatrix();
 
@@ -118,37 +118,41 @@ class RenderRecipe extends GuiContainer {
 	 * Draws an itemstack at a specific position
 	 */
 	protected void drawItemStackAtPosition(ItemStack itemstack, int x, int y) {
-		if (itemstack == null)
+		if (itemstack == null) {
 			return;
+		}
 
-		this.zLevel = 100.0F;
+		zLevel = 100.0F;
 		itemRender.zLevel = 100.0F;
 
 		String s = null;
-		if (itemstack.stackSize > 1)
+		if (itemstack.stackSize > 1) {
 			s = "" + itemstack.stackSize;
+		}
 
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y);
 		itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y, s);
 
 		itemRender.zLevel = 0.0F;
-		this.zLevel = 0.0F;
+		zLevel = 0.0F;
 	}
 
 	/**
 	 * Draws an inventory slot
 	 */
 	protected void drawSlotInventory(Slot slot) {
-		ItemStack itemstack = slot.getStack();
+		final ItemStack itemstack = slot.getStack();
 
-		if (itemstack == null)
+		if (itemstack == null) {
 			return;
+		}
 
 		itemstack.stackSize = 1;
 
-		if (!incredientList.containsKey(itemstack.getDisplayName()))
+		if (!incredientList.containsKey(itemstack.getDisplayName())) {
 			incredientList.put(itemstack.getDisplayName(), itemstack);
+		}
 
 		drawItemStackAtPosition(itemstack, slot.xDisplayPosition, slot.yDisplayPosition);
 	}
@@ -161,28 +165,30 @@ class RenderRecipe extends GuiContainer {
 	public void drawGuiContainerForegroundLayer(int i, int j) {
 		super.drawGuiContainerForegroundLayer(i, j);
 
-		String title = LanguageRegistry.instance().getStringLocalization(getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName());
+		final String title = LanguageRegistry.instance().getStringLocalization(getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName());
 		fontRendererObj.drawString(title, getCenteredOffset(title, xSize), 5, 0x404040);
 
-		float scale = 3 / 4F;
+		final float scale = 3 / 4F;
 
 		// since we scale by 1/2, we have to start on *2
-		int[] baseX = { (int) (10 * (1F / scale)), (int) (100 * (1F / scale)) };
-		int baseY = (int) (76 * (1F / scale));
+		final int[] baseX = { (int) (10 * (1F / scale)), (int) (100 * (1F / scale)) };
+		final int baseY = (int) (76 * (1F / scale));
 
 		GL11.glScalef(scale, scale, 1.0F);
 
 		int item = 0;
 		int y = baseY;
-		for (Entry<String, ItemStack> entry : incredientList.entrySet()) {
+		for (final Entry<String, ItemStack> entry : incredientList.entrySet()) {
 
-			int x = baseX[incredientList.size() < 5 ? 0 : (item < incredientList.size() / 2 ? 0 : 1)];
-			if (incredientList.size() < 5 ? false : (item == incredientList.size() / 2))
+			final int x = baseX[incredientList.size() < 5 ? 0 : (item < (incredientList.size() / 2) ? 0 : 1)];
+			if (incredientList.size() < 5 ? false : (item == (incredientList.size() / 2))) {
 				y = baseY;
+			}
 
 			String name = entry.getKey();
-			if (incredientList.size() >= 5)
+			if (incredientList.size() >= 5) {
 				name = fontRendererObj.trimStringToWidth(name, (int) ((100 - 10 - 18) * (1F / scale)));
+			}
 
 			fontRendererObj.drawString(name, x + 18, y + 4, 0x404040);
 			drawItemStackAtPosition(entry.getValue(), x, y);
@@ -199,16 +205,17 @@ class RenderRecipe extends GuiContainer {
 
 	public void draw(String subFolder) {
 
-		File dir = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder);
+		final File dir = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder);
 		if (!dir.exists() && !dir.mkdirs()) {
 			throw new RuntimeException("The recipes directory could not be created: " + dir);
 		}
 
 		name = name.replace(" ", "");
-		File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + ".png");
+		final File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + ".png");
 
-		if (file.exists())
+		if (file.exists()) {
 			return;
+		}
 
 		GL11.glPushMatrix();
 		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
@@ -228,11 +235,11 @@ class RenderRecipe extends GuiContainer {
 
 		try {
 			drawScreen(0, 0, 0);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 
-		ByteBuffer fb = ByteBuffer.allocateDirect(width * height * 3);
+		final ByteBuffer fb = ByteBuffer.allocateDirect(width * height * 3);
 
 		GL11.glReadPixels(0, 0, width, height, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, fb);
 		GL11.glPopMatrix();
@@ -241,25 +248,25 @@ class RenderRecipe extends GuiContainer {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		try {
 			Display.swapBuffers();
-		} catch (LWJGLException e1) {
+		} catch (final LWJGLException e1) {
 			e1.printStackTrace();
 		}
 
-		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				int i = (x + (width * y)) * 3;
-				int r = fb.get(i) & 0xFF;
-				int g = fb.get(i + 1) & 0xFF;
-				int b = fb.get(i + 2) & 0xFF;
+				final int i = (x + (width * y)) * 3;
+				final int r = fb.get(i) & 0xFF;
+				final int g = fb.get(i + 1) & 0xFF;
+				final int b = fb.get(i + 2) & 0xFF;
 				image.setRGB(x, height - (y + 1), (0xFF << 24) | (r << 16) | (g << 8) | b);
 			}
 		}
 
 		try {
 			ImageIO.write(image, "png", file);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -268,7 +275,7 @@ class RenderRecipe extends GuiContainer {
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		this.mc.renderEngine.bindTexture(new ResourceLocation("arg", "textures/gui/crafting.png"));
+		mc.renderEngine.bindTexture(new ResourceLocation("arg", "textures/gui/crafting.png"));
 		drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
 		// GL11.glDisable(GL11.GL_TEXTURE_2D);
 	}

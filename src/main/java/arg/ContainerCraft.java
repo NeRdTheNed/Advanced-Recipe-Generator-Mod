@@ -25,17 +25,17 @@ public class ContainerCraft extends Container {
 	public IInventory craftResult = new InventoryCraftResult();
 
 	public ContainerCraft() {
-		this.addSlotToContainer(new SlotCrafting(null, this.craftMatrix, this.craftResult, 0, 124, 35));
+		addSlotToContainer(new SlotCrafting(null, craftMatrix, craftResult, 0, 124, 35));
 		int l;
 		int i1;
 
 		for (l = 0; l < 3; ++l) {
 			for (i1 = 0; i1 < 3; ++i1) {
-				this.addSlotToContainer(new Slot(this.craftMatrix, i1 + l * 3, 30 + i1 * 18, 17 + l * 18));
+				addSlotToContainer(new Slot(craftMatrix, i1 + (l * 3), 30 + (i1 * 18), 17 + (l * 18)));
 			}
 		}
 
-		this.onCraftMatrixChanged(this.craftMatrix);
+		onCraftMatrixChanged(craftMatrix);
 	}
 
 	@Override

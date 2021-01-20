@@ -67,65 +67,70 @@ public class ARG {
 	public void createRecipeImages(TextureStitchEvent.Post evt) {
 		mapLoaded[evt.map.getTextureType()]++;
 
-		if (mapLoaded[0] > 0 && mapLoaded[0] == mapLoaded[1]) {
-			if (mapGenerated)
+		if ((mapLoaded[0] > 0) && (mapLoaded[0] == mapLoaded[1])) {
+			if (mapGenerated) {
 				return;
+			}
 			mapGenerated = true;
 
 			argLog.info("Generating Recipes ...");
 
-			TextureManager tm = Minecraft.getMinecraft().getTextureManager();
+			final TextureManager tm = Minecraft.getMinecraft().getTextureManager();
 
 			// save since we get a ConcurrentModificationException in TextureManager.func_110549_a otherwise
 
-			Map mapTextureObjects = ObfuscationReflectionHelper.getPrivateValue(TextureManager.class, tm, "mapTextureObjects", "field_110585_a");
+			final Map mapTextureObjects = ObfuscationReflectionHelper.getPrivateValue(TextureManager.class, tm, "mapTextureObjects", "field_110585_a");
 
-			Map new_mapTextureObjects = Maps.newHashMap();
+			final Map new_mapTextureObjects = Maps.newHashMap();
 			new_mapTextureObjects.putAll(mapTextureObjects);
 			ObfuscationReflectionHelper.setPrivateValue(TextureManager.class, tm, new_mapTextureObjects, "mapTextureObjects", "field_110585_a");
 
-			for (Object orecipe : CraftingManager.getInstance().getRecipeList()) {
-				IRecipe irecipe = (IRecipe) orecipe;
+			for (final Object orecipe : CraftingManager.getInstance().getRecipeList()) {
+				final IRecipe irecipe = (IRecipe) orecipe;
 
-				if ((irecipe instanceof RecipesArmorDyes) || (irecipe instanceof RecipeFireworks) || (irecipe instanceof RecipesMapCloning))
+				if ((irecipe instanceof RecipesArmorDyes) || (irecipe instanceof RecipeFireworks) || (irecipe instanceof RecipesMapCloning)) {
 					continue;
+				}
 
 				if (irecipe.getRecipeOutput() == null) {
 					System.out.println("Skip recipe without output: " + irecipe.getClass().getSimpleName());
 					continue;
 				}
 
-				RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
+				final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
 
 				ItemStack[] recipeInput = null;
 				try {
 					recipeInput = RecipeHelper.getRecipeArray(irecipe);
-					if (recipeInput == null)
+					if (recipeInput == null) {
 						continue;
-				} catch (Exception e) {
+					}
+				} catch (final Exception e) {
 					e.printStackTrace();
 				}
 
 				// Determine mod of this recipe.
-				UniqueIdentifier identifier = null;
+				UniqueIdentifier identifier;
                 identifier = getUniqueIdentifier(irecipe.getRecipeOutput());
                 int recipe = 0;
-                while(identifier == null && recipeInput != null && recipe < recipeInput.length) {
-                    ItemStack input = recipeInput[recipe];
+                while((identifier == null) && (recipeInput != null) && (recipe < recipeInput.length)) {
+                    final ItemStack input = recipeInput[recipe];
                     identifier = getUniqueIdentifier(input);
                     recipe++;
                 }
                 String subFolder = "vanilla";
-                if(identifier != null)
-                   subFolder = identifier.modId;
+                if(identifier != null) {
+					subFolder = identifier.modId;
+				}
 
 				try {
-					for (int i = 0; i < recipeInput.length - 1; ++i)
+					for (int i = 0; i < (recipeInput.length - 1); ++i) {
 						render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
+					}
 
 					render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
 					render.draw(subFolder);
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					e.printStackTrace();
 				}
 			}
@@ -138,10 +143,11 @@ public class ARG {
 	}
 
 	private UniqueIdentifier getUniqueIdentifier(ItemStack itemStack) {
-	    if(itemStack == null || itemStack.getItem() == null)
-	        return null;
+	    if((itemStack == null) || (itemStack.getItem() == null)) {
+			return null;
+		}
 	    if(itemStack.getItem() instanceof ItemBlock) {
-            Block block = Block.getBlockFromItem(((ItemBlock)itemStack.getItem()));
+            final Block block = Block.getBlockFromItem((itemStack.getItem()));
 	        return GameRegistry.findUniqueIdentifierFor(block);
 	    } else {
 	        return GameRegistry.findUniqueIdentifierFor(itemStack.getItem());
