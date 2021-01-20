@@ -63,16 +63,12 @@ public class ARG {
 			if (mapGenerated) {
 				return;
 			}
+
 			mapGenerated = true;
-
 			argLog.info("Generating Recipes ...");
-
 			final TextureManager tm = Minecraft.getMinecraft().getTextureManager();
-
 			// save since we get a ConcurrentModificationException in TextureManager.func_110549_a otherwise
-
 			final Map mapTextureObjects = ObfuscationReflectionHelper.getPrivateValue(TextureManager.class, tm, "mapTextureObjects", "field_110585_a");
-
 			final Map new_mapTextureObjects = Maps.newHashMap();
 			new_mapTextureObjects.putAll(mapTextureObjects);
 			ObfuscationReflectionHelper.setPrivateValue(TextureManager.class, tm, new_mapTextureObjects, "mapTextureObjects", "field_110585_a");
@@ -90,10 +86,11 @@ public class ARG {
 				}
 
 				final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
-
 				ItemStack[] recipeInput = null;
+
 				try {
 					recipeInput = RecipeHelper.getRecipeArray(irecipe);
+
 					if (recipeInput == null) {
 						continue;
 					}
@@ -103,15 +100,18 @@ public class ARG {
 
 				// Determine mod of this recipe.
 				UniqueIdentifier identifier;
-                identifier = getUniqueIdentifier(irecipe.getRecipeOutput());
-                int recipe = 0;
-                while((identifier == null) && (recipeInput != null) && (recipe < recipeInput.length)) {
-                    final ItemStack input = recipeInput[recipe];
-                    identifier = getUniqueIdentifier(input);
-                    recipe++;
-                }
-                String subFolder = "vanilla";
-                if(identifier != null) {
+				identifier = getUniqueIdentifier(irecipe.getRecipeOutput());
+				int recipe = 0;
+
+				while ((identifier == null) && (recipeInput != null) && (recipe < recipeInput.length)) {
+					final ItemStack input = recipeInput[recipe];
+					identifier = getUniqueIdentifier(input);
+					recipe++;
+				}
+
+				String subFolder = "vanilla";
+
+				if (identifier != null) {
 					subFolder = identifier.modId;
 				}
 
@@ -129,28 +129,27 @@ public class ARG {
 
 			// restore map since we get a ConcurrentModificationException in TextureManager.func_110549_a otherwise
 			ObfuscationReflectionHelper.setPrivateValue(TextureManager.class, tm, mapTextureObjects, "mapTextureObjects", "field_110585_a");
-
 			argLog.info("Finished Generation of Recipes in " + Minecraft.getMinecraft().mcDataDir + "/recipes/");
 		}
 	}
 
 	private UniqueIdentifier getUniqueIdentifier(ItemStack itemStack) {
-	    if((itemStack == null) || (itemStack.getItem() == null)) {
+		if ((itemStack == null) || (itemStack.getItem() == null)) {
 			return null;
 		}
-	    if(itemStack.getItem() instanceof ItemBlock) {
-            final Block block = Block.getBlockFromItem((itemStack.getItem()));
-	        return GameRegistry.findUniqueIdentifierFor(block);
-	    } else {
-	        return GameRegistry.findUniqueIdentifierFor(itemStack.getItem());
-	    }
+
+		if (itemStack.getItem() instanceof ItemBlock) {
+			final Block block = Block.getBlockFromItem((itemStack.getItem()));
+			return GameRegistry.findUniqueIdentifierFor(block);
+		} else {
+			return GameRegistry.findUniqueIdentifierFor(itemStack.getItem());
+		}
 	}
 
 	@EventHandler
 	public void load(FMLInitializationEvent evt) {
 		argLog.info("Starting " + NAME);
 		argLog.info("Copyright (c) Flow86, 2012-2014");
-
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 }

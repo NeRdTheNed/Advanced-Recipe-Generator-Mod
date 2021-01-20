@@ -28,12 +28,12 @@ public class RecipeHelper {
 		if (irecipe.getRecipeSize() > 9) {
 			return null;
 		}
+
 		final ItemStack[] recipeArray = new ItemStack[10];
 		recipeArray[0] = irecipe.getRecipeOutput();
 
 		if ((irecipe instanceof ShapedRecipes)) {
 			final ShapedRecipes shapedRecipe = (ShapedRecipes) irecipe;
-
 			final ItemStack[] recipeInput = shapedRecipe.recipeItems;
 
 			for (int slot = 0; slot < recipeInput.length; slot++) {
@@ -48,10 +48,8 @@ public class RecipeHelper {
 				final int y = slot / shapedRecipe.recipeWidth;
 				recipeArray[(x + (y * shapedRecipe.recipeWidth)) + 1] = item;
 			}
-
 		} else if ((irecipe instanceof ShapelessRecipes)) {
 			final ShapelessRecipes shapelessRecipe = (ShapelessRecipes) irecipe;
-
 			final List recipeInput = shapelessRecipe.recipeItems;
 
 			for (int slot = 0; slot < recipeInput.size(); slot++) {
@@ -64,10 +62,8 @@ public class RecipeHelper {
 
 				recipeArray[slot + 1] = item;
 			}
-
 		} else if ((irecipe instanceof ShapedOreRecipe)) {
 			final ShapedOreRecipe shapedOreRecipe = (ShapedOreRecipe) irecipe;
-
 			final Object[] recipeInput = shapedOreRecipe.getInput();
 
 			for (int slot = 0; slot < recipeInput.length; slot++) {
@@ -79,10 +75,12 @@ public class RecipeHelper {
 
 				if (recipeSlot instanceof ArrayList) {
 					final ArrayList list = (ArrayList) recipeSlot;
+
 					if (list.size() > 1) {
 						System.out.println("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
 						return null;
 					}
+
 					recipeSlot = list.get(0);
 				}
 
@@ -95,16 +93,13 @@ public class RecipeHelper {
 					}
 
 					recipeArray[slot + 1] = item;
-
 				} else {
 					System.out.println("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
 					return null;
 				}
 			}
-
 		} else if ((irecipe instanceof ShapelessOreRecipe)) {
 			final ShapelessOreRecipe shapelessOreRecipe = (ShapelessOreRecipe) irecipe;
-
 			final List recipeInput = shapelessOreRecipe.getInput();
 
 			for (int slot = 0; slot < recipeInput.size(); slot++) {
@@ -116,10 +111,12 @@ public class RecipeHelper {
 
 				if (recipeSlot instanceof ArrayList) {
 					final ArrayList list = (ArrayList) recipeSlot;
+
 					if (list.size() > 1) {
 						System.out.println("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
 						return null;
 					}
+
 					recipeSlot = list.get(0);
 				}
 
@@ -132,13 +129,11 @@ public class RecipeHelper {
 					}
 
 					recipeArray[slot + 1] = item;
-
 				} else {
 					System.out.println("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
 					return null;
 				}
 			}
-
 		} else {
 			System.out.println("Unknown Type: " + irecipe.getClass().getSimpleName());
 			return null;
