@@ -27,3 +27,4 @@ output-client.log.lck
 server.log
 server.properties
 white-list.txt
+.DS_Store
