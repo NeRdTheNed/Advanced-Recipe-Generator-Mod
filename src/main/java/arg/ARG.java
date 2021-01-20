@@ -53,14 +53,6 @@ public class ARG {
 	public static int[] mapLoaded = { 0, 0 };
 	public static boolean mapGenerated = false;
 
-	@EventHandler
-	public void load(FMLInitializationEvent evt) {
-		argLog.info("Starting " + NAME);
-		argLog.info("Copyright (c) Flow86, 2012-2014");
-
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	@SideOnly(Side.CLIENT)
@@ -152,5 +144,13 @@ public class ARG {
 	    } else {
 	        return GameRegistry.findUniqueIdentifierFor(itemStack.getItem());
 	    }
+	}
+
+	@EventHandler
+	public void load(FMLInitializationEvent evt) {
+		argLog.info("Starting " + NAME);
+		argLog.info("Copyright (c) Flow86, 2012-2014");
+
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 }

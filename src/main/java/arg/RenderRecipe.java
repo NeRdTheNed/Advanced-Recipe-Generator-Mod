@@ -68,141 +68,6 @@ class RenderRecipe extends GuiContainer {
 		height = ySize * 3;
 	}
 
-	public ContainerCraft getCraftingContainer() {
-		return (ContainerCraft) inventorySlots;
-	}
-
-	/**
-	 * Draws the screen and all the components in it.
-	 */
-	@Override
-	public void drawScreen(int par1, int par2, float par3) {
-		drawDefaultBackground();
-		final int k = guiLeft;
-		final int l = guiTop;
-		drawGuiContainerBackgroundLayer(par3, par1, par2);
-		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-		RenderHelper.disableStandardItemLighting();
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		RenderHelper.enableGUIStandardItemLighting();
-		GL11.glPushMatrix();
-		GL11.glTranslatef(k, l, 0.0F);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-		final short short1 = 240;
-		final short short2 = 240;
-		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, short1 / 1.0F, short2 / 1.0F);
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-		// crafting result
-		drawSlotInventory((Slot) inventorySlots.inventorySlots.get(0));
-
-		incredientList.clear();
-
-		for (int j1 = 1; j1 < inventorySlots.inventorySlots.size(); ++j1) {
-			final Slot slot = (Slot) inventorySlots.inventorySlots.get(j1);
-			drawSlotInventory(slot);
-		}
-
-		drawGuiContainerForegroundLayer(par1, par2);
-
-		GL11.glPopMatrix();
-
-		GL11.glEnable(GL11.GL_LIGHTING);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		RenderHelper.enableStandardItemLighting();
-	}
-
-	/**
-	 * Draws an itemstack at a specific position
-	 */
-	protected void drawItemStackAtPosition(ItemStack itemstack, int x, int y) {
-		if (itemstack == null) {
-			return;
-		}
-
-		zLevel = 100.0F;
-		itemRender.zLevel = 100.0F;
-
-		String s = null;
-		if (itemstack.stackSize > 1) {
-			s = "" + itemstack.stackSize;
-		}
-
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y);
-		itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y, s);
-
-		itemRender.zLevel = 0.0F;
-		zLevel = 0.0F;
-	}
-
-	/**
-	 * Draws an inventory slot
-	 */
-	protected void drawSlotInventory(Slot slot) {
-		final ItemStack itemstack = slot.getStack();
-
-		if (itemstack == null) {
-			return;
-		}
-
-		itemstack.stackSize = 1;
-
-		if (!incredientList.containsKey(itemstack.getDisplayName())) {
-			incredientList.put(itemstack.getDisplayName(), itemstack);
-		}
-
-		drawItemStackAtPosition(itemstack, slot.xDisplayPosition, slot.yDisplayPosition);
-	}
-
-	protected int getCenteredOffset(String string, int xWidth) {
-		return (xWidth - fontRendererObj.getStringWidth(string)) / 2;
-	}
-
-	@Override
-	public void drawGuiContainerForegroundLayer(int i, int j) {
-		super.drawGuiContainerForegroundLayer(i, j);
-
-		final String title = LanguageRegistry.instance().getStringLocalization(getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName());
-		fontRendererObj.drawString(title, getCenteredOffset(title, xSize), 5, 0x404040);
-
-		final float scale = 3 / 4F;
-
-		// since we scale by 1/2, we have to start on *2
-		final int[] baseX = { (int) (10 * (1F / scale)), (int) (100 * (1F / scale)) };
-		final int baseY = (int) (76 * (1F / scale));
-
-		GL11.glScalef(scale, scale, 1.0F);
-
-		int item = 0;
-		int y = baseY;
-		for (final Entry<String, ItemStack> entry : incredientList.entrySet()) {
-
-			final int x = baseX[incredientList.size() < 5 ? 0 : (item < (incredientList.size() / 2) ? 0 : 1)];
-			if (incredientList.size() < 5 ? false : (item == (incredientList.size() / 2))) {
-				y = baseY;
-			}
-
-			String name = entry.getKey();
-			if (incredientList.size() >= 5) {
-				name = fontRendererObj.trimStringToWidth(name, (int) ((100 - 10 - 18) * (1F / scale)));
-			}
-
-			fontRendererObj.drawString(name, x + 18, y + 4, 0x404040);
-			drawItemStackAtPosition(entry.getValue(), x, y);
-			y += 18;
-			item++;
-		}
-		GL11.glScalef(1F / scale, 1F / scale, 1.0F);
-	}
-
-	@Override
-	public void drawBackground(int par1) {
-
-	}
-
 	public void draw(String subFolder) {
 
 		final File dir = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder);
@@ -272,11 +137,146 @@ class RenderRecipe extends GuiContainer {
 	}
 
 	@Override
+	public void drawBackground(int par1) {
+
+	}
+
+	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		mc.renderEngine.bindTexture(new ResourceLocation("arg", "textures/gui/crafting.png"));
 		drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
 		// GL11.glDisable(GL11.GL_TEXTURE_2D);
+	}
+
+	@Override
+	public void drawGuiContainerForegroundLayer(int i, int j) {
+		super.drawGuiContainerForegroundLayer(i, j);
+
+		final String title = LanguageRegistry.instance().getStringLocalization(getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName());
+		fontRendererObj.drawString(title, getCenteredOffset(title, xSize), 5, 0x404040);
+
+		final float scale = 3 / 4F;
+
+		// since we scale by 1/2, we have to start on *2
+		final int[] baseX = { (int) (10 * (1F / scale)), (int) (100 * (1F / scale)) };
+		final int baseY = (int) (76 * (1F / scale));
+
+		GL11.glScalef(scale, scale, 1.0F);
+
+		int item = 0;
+		int y = baseY;
+		for (final Entry<String, ItemStack> entry : incredientList.entrySet()) {
+
+			final int x = baseX[incredientList.size() < 5 ? 0 : (item < (incredientList.size() / 2) ? 0 : 1)];
+			if (incredientList.size() < 5 ? false : (item == (incredientList.size() / 2))) {
+				y = baseY;
+			}
+
+			String name = entry.getKey();
+			if (incredientList.size() >= 5) {
+				name = fontRendererObj.trimStringToWidth(name, (int) ((100 - 10 - 18) * (1F / scale)));
+			}
+
+			fontRendererObj.drawString(name, x + 18, y + 4, 0x404040);
+			drawItemStackAtPosition(entry.getValue(), x, y);
+			y += 18;
+			item++;
+		}
+		GL11.glScalef(1F / scale, 1F / scale, 1.0F);
+	}
+
+	/**
+	 * Draws an itemstack at a specific position
+	 */
+	protected void drawItemStackAtPosition(ItemStack itemstack, int x, int y) {
+		if (itemstack == null) {
+			return;
+		}
+
+		zLevel = 100.0F;
+		itemRender.zLevel = 100.0F;
+
+		String s = null;
+		if (itemstack.stackSize > 1) {
+			s = "" + itemstack.stackSize;
+		}
+
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y);
+		itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, itemstack, x, y, s);
+
+		itemRender.zLevel = 0.0F;
+		zLevel = 0.0F;
+	}
+
+	/**
+	 * Draws the screen and all the components in it.
+	 */
+	@Override
+	public void drawScreen(int par1, int par2, float par3) {
+		drawDefaultBackground();
+		final int k = guiLeft;
+		final int l = guiTop;
+		drawGuiContainerBackgroundLayer(par3, par1, par2);
+		GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+		RenderHelper.disableStandardItemLighting();
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		RenderHelper.enableGUIStandardItemLighting();
+		GL11.glPushMatrix();
+		GL11.glTranslatef(k, l, 0.0F);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+		final short short1 = 240;
+		final short short2 = 240;
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, short1 / 1.0F, short2 / 1.0F);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+		// crafting result
+		drawSlotInventory((Slot) inventorySlots.inventorySlots.get(0));
+
+		incredientList.clear();
+
+		for (int j1 = 1; j1 < inventorySlots.inventorySlots.size(); ++j1) {
+			final Slot slot = (Slot) inventorySlots.inventorySlots.get(j1);
+			drawSlotInventory(slot);
+		}
+
+		drawGuiContainerForegroundLayer(par1, par2);
+
+		GL11.glPopMatrix();
+
+		GL11.glEnable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		RenderHelper.enableStandardItemLighting();
+	}
+
+	/**
+	 * Draws an inventory slot
+	 */
+	protected void drawSlotInventory(Slot slot) {
+		final ItemStack itemstack = slot.getStack();
+
+		if (itemstack == null) {
+			return;
+		}
+
+		itemstack.stackSize = 1;
+
+		if (!incredientList.containsKey(itemstack.getDisplayName())) {
+			incredientList.put(itemstack.getDisplayName(), itemstack);
+		}
+
+		drawItemStackAtPosition(itemstack, slot.xDisplayPosition, slot.yDisplayPosition);
+	}
+
+	protected int getCenteredOffset(String string, int xWidth) {
+		return (xWidth - fontRendererObj.getStringWidth(string)) / 2;
+	}
+
+	public ContainerCraft getCraftingContainer() {
+		return (ContainerCraft) inventorySlots;
 	}
 }
