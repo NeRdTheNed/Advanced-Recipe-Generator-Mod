@@ -1,14 +1,13 @@
-{
-  "modinfoversion": 2,
-  "modlist": [{
+[
+  {
     "modid": "Advanced-Recipe-Generator",
     "name": "Advanced recipe generator",
     "description": "Generates recipe images when Minecraft starts.",
     "version": "${version}",
     "mcversion": "${mc_version}",
     "url": "https://github.com/Flow86/Advanced-Recipe-Generator-Mod",
-    "authors": [ "Flow86" ],
+    "authorList": [ "Flow86" ],
     "credits": "Authored by Flow86",
-    "logoFile": "/assets/arg/logo.png",
-  }]
-}
+    "logoFile": "/assets/arg/logo.png"
+  }
+]
