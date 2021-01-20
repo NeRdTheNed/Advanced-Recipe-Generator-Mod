@@ -21,25 +21,25 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 
 public class ContainerCraft extends Container {
-	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
-	public IInventory craftResult = new InventoryCraftResult();
+    public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
+    public IInventory craftResult = new InventoryCraftResult();
 
-	public ContainerCraft() {
-		addSlotToContainer(new SlotCrafting(null, craftMatrix, craftResult, 0, 124, 35));
-		int l;
-		int i1;
+    public ContainerCraft() {
+        addSlotToContainer(new SlotCrafting(null, craftMatrix, craftResult, 0, 124, 35));
+        int l;
+        int i1;
 
-		for (l = 0; l < 3; ++l) {
-			for (i1 = 0; i1 < 3; ++i1) {
-				addSlotToContainer(new Slot(craftMatrix, i1 + (l * 3), 30 + (i1 * 18), 17 + (l * 18)));
-			}
-		}
+        for (l = 0; l < 3; ++l) {
+            for (i1 = 0; i1 < 3; ++i1) {
+                addSlotToContainer(new Slot(craftMatrix, i1 + (l * 3), 30 + (i1 * 18), 17 + (l * 18)));
+            }
+        }
 
-		onCraftMatrixChanged(craftMatrix);
-	}
+        onCraftMatrixChanged(craftMatrix);
+    }
 
-	@Override
-	public boolean canInteractWith(EntityPlayer entityplayer) {
-		return true;
-	}
+    @Override
+    public boolean canInteractWith(EntityPlayer entityplayer) {
+        return true;
+    }
 }
