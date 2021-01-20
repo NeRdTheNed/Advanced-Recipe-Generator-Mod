@@ -19,7 +19,6 @@ import com.google.common.collect.Maps;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
@@ -44,9 +43,6 @@ import net.minecraftforge.common.MinecraftForge;
 @Mod(modid = ARG.NAME)
 public class ARG {
     public static final String NAME = "Advanced-Recipe-Generator";
-
-    @Instance("Advanced-Recipe-Generator")
-    public static ARG instance;
 
     public static Logger argLog = Logger.getLogger(NAME);
 
