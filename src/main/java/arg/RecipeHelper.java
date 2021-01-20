@@ -12,6 +12,8 @@
 
 package arg;
 
+import static arg.ARG.argLog;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +79,7 @@ public class RecipeHelper {
                     final ArrayList list = (ArrayList) recipeSlot;
 
                     if (list.size() > 1) {
-                        System.out.println("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
+                        argLog.warning("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
                         return null;
                     }
 
@@ -94,7 +96,7 @@ public class RecipeHelper {
 
                     recipeArray[slot + 1] = item;
                 } else {
-                    System.out.println("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
+                    argLog.warning("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
                     return null;
                 }
             }
@@ -113,7 +115,7 @@ public class RecipeHelper {
                     final ArrayList list = (ArrayList) recipeSlot;
 
                     if (list.size() > 1) {
-                        System.out.println("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
+                        argLog.warning("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
                         return null;
                     }
 
@@ -130,12 +132,12 @@ public class RecipeHelper {
 
                     recipeArray[slot + 1] = item;
                 } else {
-                    System.out.println("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
+                    argLog.warning("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
                     return null;
                 }
             }
         } else {
-            System.out.println("Unknown Type: " + irecipe.getClass().getSimpleName());
+            argLog.warning("Unknown Type: " + irecipe.getClass().getSimpleName());
             return null;
         }
 
