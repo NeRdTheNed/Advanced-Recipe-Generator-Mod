@@ -22,6 +22,9 @@ plugins {
     id 'java-library'
 }
 
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
 apply plugin: 'java'
 apply plugin: 'forge'
 
@@ -75,22 +78,17 @@ processResources {
     exclude "**/*.psd", "**/*.bak"
 
     // text resources which getting filtered
-    from(sourceSets.main.resources.srcDirs) {
-        include '**/*.lang'
-        include '**/*.info'
-        include '**/*.properties'
-
+    filesMatching(['mcmod.info', 'pack.mcmeta', 'version.properties']) {
         expand 'version'       : project.ext.baseversion, 
                'buildnumber'   : project.ext.buildnumber, 
                'mc_version'    : project.minecraft.version, 
                'mc_apiversion' : project.minecraft.apiVersion
     }
-
-    // binary resources
-    from(sourceSets.main.resources.srcDirs) {
-        exclude '**/*.lang'
-        exclude '**/*.info'
-        exclude '**/*.properties'
+    
+    doLast {
+        fileTree(dir: outputs.files.asPath, include: ['**/mcmod.info', '**/pack.mcmeta']).each {
+            File file -> file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+        }
     }
 }
 
