@@ -102,17 +102,3 @@ jar {
         attributes 'Version'   : project.version
     }
 }
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    appendix = 'deobf'
-
-    manifest {
-        attributes 'MCVersion' : project.minecraft.version
-        attributes 'Version'   : project.version
-    }
-}
- 
-artifacts {
-    archives deobfJar
-}
