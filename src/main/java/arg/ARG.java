@@ -55,11 +55,7 @@ public class ARG {
     public void createRecipeImages(TextureStitchEvent.Post evt) {
         mapLoaded[evt.map.getTextureType()]++;
 
-        if ((mapLoaded[0] > 0) && (mapLoaded[0] == mapLoaded[1])) {
-            if (mapGenerated) {
-                return;
-            }
-
+        if (!mapGenerated && (mapLoaded[0] > 0) && (mapLoaded[0] == mapLoaded[1])) {
             mapGenerated = true;
             argLog.info("Generating Recipes ...");
             final TextureManager tm = Minecraft.getMinecraft().getTextureManager();
