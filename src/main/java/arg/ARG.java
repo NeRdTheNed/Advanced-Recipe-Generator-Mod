@@ -12,10 +12,14 @@
 
 package arg;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.apache.commons.io.FileUtils;
 
 import com.google.common.collect.Maps;
 
@@ -155,5 +159,15 @@ public class ARG {
         argLog.info("Starting " + NAME);
         argLog.info("Copyright (c) Flow86, 2012-2014");
         MinecraftForge.EVENT_BUS.register(this);
+        final File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/");
+
+        if (file.exists()) {
+            try {
+                FileUtils.deleteDirectory(file);
+            } catch (final IOException e) {
+                argLog.severe("Could not delete previously generated recipes folder!");
+                e.printStackTrace();
+            }
+        }
     }
 }
