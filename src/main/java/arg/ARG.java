@@ -94,13 +94,12 @@ public class ARG {
 
             for (final Map.Entry<UniqueIdentifier, ArrayList<IRecipe>> recipeEntry : recipeMap.entrySet()) {
                 for (final IRecipe irecipe : recipeEntry.getValue()) {
-                    final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
-                    ItemStack[] recipeInput = null;
+                    ItemStack[][] recipeInputs = null;
 
                     try {
-                        recipeInput = RecipeHelper.getRecipeArray(irecipe);
+                        recipeInputs = RecipeHelper.getRecipeArrays(irecipe);
 
-                        if (recipeInput == null) {
+                        if (recipeInputs == null) {
                             continue;
                         }
                     } catch (final Exception e) {
@@ -116,12 +115,16 @@ public class ARG {
                     }
 
                     try {
-                        for (int i = 0; i < (recipeInput.length - 1); ++i) {
-                            render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
-                        }
+                        for (final ItemStack[] recipeInput : recipeInputs) {
+                            final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
 
-                        render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
-                        render.draw(subFolder + "/" + recipeEntry.getKey().name);
+                            for (int i = 0; i < (recipeInput.length - 1); ++i) {
+                                render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
+                            }
+
+                            render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
+                            render.draw(subFolder + "/" + recipeEntry.getKey().name);
+                        }
                     } catch (final Exception e) {
                         e.printStackTrace();
                     }
