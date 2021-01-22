@@ -12,6 +12,8 @@
 
 package arg;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -64,6 +66,7 @@ public class ARG {
             final Map new_mapTextureObjects = Maps.newHashMap();
             new_mapTextureObjects.putAll(mapTextureObjects);
             ObfuscationReflectionHelper.setPrivateValue(TextureManager.class, tm, new_mapTextureObjects, "mapTextureObjects", "field_110585_a");
+            final HashMap<UniqueIdentifier, ArrayList<IRecipe>> recipeMap = new HashMap();
 
             for (final Object orecipe : CraftingManager.getInstance().getRecipeList()) {
                 final IRecipe irecipe = (IRecipe) orecipe;
@@ -77,45 +80,51 @@ public class ARG {
                     continue;
                 }
 
-                final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
-                ItemStack[] recipeInput = null;
+                final UniqueIdentifier itemIdentifier = getUniqueIdentifier(irecipe.getRecipeOutput());
+                final ArrayList<IRecipe> existingEntry = recipeMap.get(itemIdentifier);
 
-                try {
-                    recipeInput = RecipeHelper.getRecipeArray(irecipe);
-
-                    if (recipeInput == null) {
-                        continue;
-                    }
-                } catch (final Exception e) {
-                    e.printStackTrace();
+                if (existingEntry == null) {
+                    final ArrayList<IRecipe> singleList = new ArrayList<IRecipe>();
+                    singleList.add(irecipe);
+                    recipeMap.put(itemIdentifier, singleList);
+                } else {
+                    existingEntry.add(irecipe);
                 }
+            }
 
-                // Determine mod of this recipe.
-                UniqueIdentifier identifier;
-                identifier = getUniqueIdentifier(irecipe.getRecipeOutput());
-                int recipe = 0;
+            for (final Map.Entry<UniqueIdentifier, ArrayList<IRecipe>> recipeEntry : recipeMap.entrySet()) {
+                for (final IRecipe irecipe : recipeEntry.getValue()) {
+                    final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
+                    ItemStack[] recipeInput = null;
 
-                while ((identifier == null) && (recipeInput != null) && (recipe < recipeInput.length)) {
-                    final ItemStack input = recipeInput[recipe];
-                    identifier = getUniqueIdentifier(input);
-                    recipe++;
-                }
+                    try {
+                        recipeInput = RecipeHelper.getRecipeArray(irecipe);
 
-                String subFolder = "vanilla";
-
-                if (identifier != null) {
-                    subFolder = identifier.modId;
-                }
-
-                try {
-                    for (int i = 0; i < (recipeInput.length - 1); ++i) {
-                        render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
+                        if (recipeInput == null) {
+                            continue;
+                        }
+                    } catch (final Exception e) {
+                        e.printStackTrace();
                     }
 
-                    render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
-                    render.draw(subFolder);
-                } catch (final Exception e) {
-                    e.printStackTrace();
+                    String subFolder;
+
+                    if (recipeEntry.getKey() != null) {
+                        subFolder = recipeEntry.getKey().modId;
+                    } else {
+                        subFolder = "UnkownMod";
+                    }
+
+                    try {
+                        for (int i = 0; i < (recipeInput.length - 1); ++i) {
+                            render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
+                        }
+
+                        render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
+                        render.draw(subFolder + "/" + recipeEntry.getKey().name);
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
