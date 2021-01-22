@@ -13,6 +13,7 @@
 package arg;
 
 import static arg.ARG.argLog;
+import static net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,15 +74,20 @@ public class RecipeHelper {
                 final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
 
                 for (int i = 0; i < recipeArrays.length; /* This space left intentionally blank */) {
-                    for (final ItemStack stack : list) {
-                        recipeArrays[i][slot + 1] = stack;
+                    for (ItemStack item : list) {
+                        if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
+                            item = item.copy();
+                            item.setItemDamage(0);
+                        }
+
+                        recipeArrays[i][slot + 1] = item;
                         i++;
                     }
                 }
             } else if (recipeSlot instanceof ItemStack) {
                 ItemStack item = (ItemStack) recipeSlot;
 
-                if ((item != null) && (item.getItemDamage() == -1)) {
+                if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
                     item = item.copy();
                     item.setItemDamage(0);
                 }
@@ -106,7 +112,7 @@ public class RecipeHelper {
         for (int slot = 0; slot < recipeInput.length; slot++) {
             ItemStack item = recipeInput[slot];
 
-            if ((item != null) && ((item.getItemDamage() == -1) || (item.getItemDamage() == 32767))) {
+            if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
                 item = item.copy();
                 item.setItemDamage(0);
             }
@@ -144,7 +150,7 @@ public class RecipeHelper {
             if (recipeSlot instanceof ItemStack) {
                 ItemStack item = (ItemStack) recipeSlot;
 
-                if ((item != null) && (item.getItemDamage() == -1)) {
+                if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
                     item = item.copy();
                     item.setItemDamage(0);
                 }
@@ -168,7 +174,7 @@ public class RecipeHelper {
         for (int slot = 0; slot < recipeInput.size(); slot++) {
             ItemStack item = recipeInput.get(slot);
 
-            if ((item != null) && (item.getItemDamage() == -1)) {
+            if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
                 item = item.copy();
                 item.setItemDamage(0);
             }
