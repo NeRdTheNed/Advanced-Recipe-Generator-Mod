@@ -79,8 +79,7 @@ public class RecipeHelper {
                     final ArrayList list = (ArrayList) recipeSlot;
 
                     if (list.size() > 1) {
-                        argLog.warning("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
-                        return null;
+                        argLog.warning("Unhandled OreDictionary recipe: Slot-Array " + (slot + 1) + " has more then one item: " + list);
                     }
 
                     recipeSlot = list.get(0);
@@ -115,8 +114,7 @@ public class RecipeHelper {
                     final ArrayList list = (ArrayList) recipeSlot;
 
                     if (list.size() > 1) {
-                        argLog.warning("ERROR: Slot-Array " + (slot + 1) + " has more then one item: " + list);
-                        return null;
+                        argLog.warning("Unhandled OreDictionary recipe: Slot-Array " + (slot + 1) + " has more then one item: " + list);
                     }
 
                     recipeSlot = list.get(0);
