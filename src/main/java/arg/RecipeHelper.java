@@ -28,6 +28,7 @@ public class RecipeHelper {
     @SuppressWarnings("rawtypes")
     public static ItemStack[] getRecipeArray(IRecipe irecipe) throws IllegalArgumentException, SecurityException, NoSuchFieldException {
         if (irecipe.getRecipeSize() > 9) {
+            argLog.warning("IRecipe " + irecipe.getClass() + " had a size higher than 9 (" + irecipe.getRecipeSize() + "), which ARG does not support..");
             return null;
         }
 
