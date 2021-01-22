@@ -75,10 +75,12 @@ class RenderRecipe extends GuiContainer {
         }
 
         name = name.replace(" ", "");
-        final File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + ".png");
+        int fileCheckCounter = 1;
+        File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + fileCheckCounter + ".png");
 
-        if (file.exists()) {
-            return;
+        while (file.exists()) {
+            file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + fileCheckCounter + ".png");
+            fileCheckCounter++;
         }
 
         GL11.glPushMatrix();
