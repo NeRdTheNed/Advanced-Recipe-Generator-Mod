@@ -47,27 +47,38 @@ public class RecipeHelper {
 
     public static ItemStack[][] getShapedOreRecipeResult(ShapedOreRecipe shapedOreRecipe) {
         final Object[] recipeInput = shapedOreRecipe.getInput();
-        final ItemStack[] recipeArray = new ItemStack[10];
-        recipeArray[0] = shapedOreRecipe.getRecipeOutput();
+        int recipeOutputs = 1;
+
+        for (final Object obj : recipeInput) {
+            if (obj instanceof ArrayList) {
+                recipeOutputs *= ((ArrayList<?>) obj).size();
+            }
+        }
+
+        final ItemStack[][] recipeArrays = new ItemStack[recipeOutputs][10];
+
+        for (final ItemStack[] recipeArray : recipeArrays) {
+            recipeArray[0] = shapedOreRecipe.getRecipeOutput();
+        }
 
         for (int slot = 0; slot < recipeInput.length; slot++) {
-            Object recipeSlot = recipeInput[slot];
+            final Object recipeSlot = recipeInput[slot];
 
             if (recipeSlot == null) {
                 continue;
             }
 
             if (recipeSlot instanceof ArrayList) {
-                final ArrayList<?> list = (ArrayList<?>) recipeSlot;
+                @SuppressWarnings("unchecked")
+                final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
 
-                if (list.size() > 1) {
-                    argLog.warning("Unhandled OreDictionary recipe: Slot-Array " + (slot + 1) + " has more then one item: " + list);
+                for (int i = 0; i < recipeArrays.length; /* This space left intentionally blank */) {
+                    for (final ItemStack stack : list) {
+                        recipeArrays[i][slot + 1] = stack;
+                        i++;
+                    }
                 }
-
-                recipeSlot = list.get(0);
-            }
-
-            if (recipeSlot instanceof ItemStack) {
+            } else if (recipeSlot instanceof ItemStack) {
                 ItemStack item = (ItemStack) recipeSlot;
 
                 if ((item != null) && (item.getItemDamage() == -1)) {
@@ -75,14 +86,16 @@ public class RecipeHelper {
                     item.setItemDamage(0);
                 }
 
-                recipeArray[slot + 1] = item;
+                for (final ItemStack[] recipeArray : recipeArrays) {
+                    recipeArray[slot + 1] = item;
+                }
             } else {
                 argLog.warning("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
                 return null;
             }
         }
 
-        return new ItemStack[][] {recipeArray};
+        return recipeArrays;
     }
 
     public static ItemStack[][] getShapedRecipeResult(ShapedRecipes shapedRecipe) {
