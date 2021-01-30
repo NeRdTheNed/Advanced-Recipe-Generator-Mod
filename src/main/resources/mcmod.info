@@ -1,6 +1,6 @@
 [
   {
-    "modid": "Advanced-Recipe-Generator",
+    "modid": "arg",
     "name": "Advanced recipe generator",
     "description": "Generates recipe images when Minecraft starts.",
     "version": "${version}",

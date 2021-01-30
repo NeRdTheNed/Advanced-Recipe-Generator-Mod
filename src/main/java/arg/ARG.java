@@ -27,6 +27,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -36,6 +37,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -46,14 +48,17 @@ import net.minecraft.item.crafting.RecipesMapCloning;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = ARG.NAME)
+@Mod(modid = ARG.MOD_ID)
 public class ARG {
-    public static final String NAME = "Advanced-Recipe-Generator";
 
-    public static Logger argLog = Logger.getLogger(NAME);
+    public static final String MOD_ID = "arg";
+
+    public static Logger argLog = Logger.getLogger(MOD_ID);
 
     public static int[] mapLoaded = { 0, 0 };
     public static boolean mapGenerated = false;
+
+    public static final Item wildcardItem = new WildcardItem();
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -96,14 +101,16 @@ public class ARG {
                 }
             }
 
+            RecipeHelper.setupInfo();
+
             for (final Map.Entry<UniqueIdentifier, ArrayList<IRecipe>> recipeEntry : recipeMap.entrySet()) {
                 for (final IRecipe irecipe : recipeEntry.getValue()) {
-                    ItemStack[][] recipeInputs = null;
+                    ItemStack[] recipeInput = null;
 
                     try {
-                        recipeInputs = RecipeHelper.getRecipeArrays(irecipe);
+                        recipeInput = RecipeHelper.getRecipeArray(irecipe);
 
-                        if (recipeInputs == null) {
+                        if (recipeInput == null) {
                             continue;
                         }
                     } catch (final Exception e) {
@@ -118,18 +125,17 @@ public class ARG {
                         subFolder = "UnkownMod";
                     }
 
+                    final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
+
                     try {
-                        for (final ItemStack[] recipeInput : recipeInputs) {
-                            final RenderRecipe render = new RenderRecipe(irecipe.getRecipeOutput().getDisplayName());
-
-                            for (int i = 0; i < (recipeInput.length - 1); ++i) {
-                                render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
-                            }
-
-                            render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
-                            render.draw(subFolder + "/" + recipeEntry.getKey().name);
+                        for (int i = 0; i < (recipeInput.length - 1); ++i) {
+                            render.getCraftingContainer().craftMatrix.setInventorySlotContents(i, recipeInput[i + 1]);
                         }
+
+                        render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
+                        render.draw(subFolder + "/" + recipeEntry.getKey().name);
                     } catch (final Exception e) {
+                        argLog.severe("Exception thrown when trying to draw recipe for " + irecipe.getRecipeOutput().getDisplayName() + " of type" + irecipe.getClass().getName() + ":");
                         e.printStackTrace();
                     }
                 }
@@ -156,8 +162,7 @@ public class ARG {
 
     @EventHandler
     public void load(FMLInitializationEvent evt) {
-        argLog.info("Starting " + NAME);
-        argLog.info("Copyright (c) Flow86, 2012-2014");
+        argLog.info("Starting Advanced Recipe Generator\nCopyright (c) Flow86, 2012-2014");
         MinecraftForge.EVENT_BUS.register(this);
         final File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/");
 
@@ -169,5 +174,10 @@ public class ARG {
                 e.printStackTrace();
             }
         }
+    }
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+        GameRegistry.registerItem(wildcardItem, "WildcardItem");
     }
 }

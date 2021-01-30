@@ -16,17 +16,23 @@ import static arg.ARG.argLog;
 import static net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 public class RecipeHelper {
-    public static ItemStack[][] getRecipeArrays(IRecipe irecipe) throws IllegalArgumentException, SecurityException, NoSuchFieldException {
+
+    //static String[] oreDictNames;
+    static HashMap<ArrayList<ItemStack>, String> oreDictMappings = new HashMap<ArrayList<ItemStack>, String>();
+
+    public static ItemStack[] getRecipeArray(IRecipe irecipe) throws IllegalArgumentException, SecurityException, NoSuchFieldException {
         if (irecipe.getRecipeSize() > 9) {
             argLog.warning("IRecipe " + irecipe.getClass() + " had a size higher than 9 (" + irecipe.getRecipeSize() + "), which ARG does not support..");
             return null;
@@ -46,24 +52,13 @@ public class RecipeHelper {
         return null;
     }
 
-    public static ItemStack[][] getShapedOreRecipeResult(ShapedOreRecipe shapedOreRecipe) {
+    public static ItemStack[] getShapedOreRecipeResult(ShapedOreRecipe shapedOreRecipe) {
         final Object[] recipeInput = shapedOreRecipe.getInput();
-        int recipeOutputs = 1;
-
-        for (final Object obj : recipeInput) {
-            if (obj instanceof ArrayList) {
-                recipeOutputs *= ((ArrayList<?>) obj).size();
-            }
-        }
-
-        final ItemStack[][] recipeArrays = new ItemStack[recipeOutputs][10];
-
-        for (final ItemStack[] recipeArray : recipeArrays) {
-            recipeArray[0] = shapedOreRecipe.getRecipeOutput();
-        }
+        final ItemStack[] recipeArray = new ItemStack[10];
+        recipeArray[0] = shapedOreRecipe.getRecipeOutput();
 
         for (int slot = 0; slot < recipeInput.length; slot++) {
-            final Object recipeSlot = recipeInput[slot];
+            Object recipeSlot = recipeInput[slot];
 
             if (recipeSlot == null) {
                 continue;
@@ -73,18 +68,23 @@ public class RecipeHelper {
                 @SuppressWarnings("unchecked")
                 final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
 
-                for (int i = 0; i < recipeArrays.length; /* This space left intentionally blank */) {
-                    for (ItemStack item : list) {
-                        if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
-                            item = item.copy();
-                            item.setItemDamage(0);
-                        }
+                if (list.size() == 1) {
+                    recipeSlot = list.get(0);
+                } else {
+                    final String oreDictName = oreDictMappings.get(list);
 
-                        recipeArrays[i][slot + 1] = item;
-                        i++;
+                    if (oreDictName != null) {
+                        final ItemStack wildcardItemOfThisArrayList = new ItemStack(ARG.wildcardItem);
+                        wildcardItemOfThisArrayList.setStackDisplayName("Any " + oreDictName);
+                        recipeSlot = wildcardItemOfThisArrayList;
+                    } else {
+                        ARG.argLog.severe("Expected an OreDictionary entry for ArrayList " + list.toString() + " in ShapedOreRecipe for " + shapedOreRecipe.getRecipeOutput());
+                        return null;
                     }
                 }
-            } else if (recipeSlot instanceof ItemStack) {
+            }
+
+            if (recipeSlot instanceof ItemStack) {
                 ItemStack item = (ItemStack) recipeSlot;
 
                 if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
@@ -92,19 +92,17 @@ public class RecipeHelper {
                     item.setItemDamage(0);
                 }
 
-                for (final ItemStack[] recipeArray : recipeArrays) {
-                    recipeArray[slot + 1] = item;
-                }
+                recipeArray[slot + 1] = item;
             } else {
                 argLog.warning("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
                 return null;
             }
         }
 
-        return recipeArrays;
+        return recipeArray;
     }
 
-    public static ItemStack[][] getShapedRecipeResult(ShapedRecipes shapedRecipe) {
+    public static ItemStack[] getShapedRecipeResult(ShapedRecipes shapedRecipe) {
         final ItemStack[] recipeInput = shapedRecipe.recipeItems;
         final ItemStack[] recipeArray = new ItemStack[10];
         recipeArray[0] = shapedRecipe.getRecipeOutput();
@@ -122,10 +120,10 @@ public class RecipeHelper {
             recipeArray[(x + (y * shapedRecipe.recipeWidth)) + 1] = item;
         }
 
-        return new ItemStack[][] {recipeArray};
+        return recipeArray;
     }
 
-    public static ItemStack[][] getShapelessOreRecipeResult(ShapelessOreRecipe shapelessOreRecipe) {
+    public static ItemStack[] getShapelessOreRecipeResult(ShapelessOreRecipe shapelessOreRecipe) {
         final List<?> recipeInput = shapelessOreRecipe.getInput();
         final ItemStack[] recipeArray = new ItemStack[10];
         recipeArray[0] = shapelessOreRecipe.getRecipeOutput();
@@ -162,10 +160,10 @@ public class RecipeHelper {
             }
         }
 
-        return new ItemStack[][] {recipeArray};
+        return recipeArray;
     }
 
-    public static ItemStack[][] getShapelessRecipeResult(ShapelessRecipes shapelessRecipe) {
+    public static ItemStack[] getShapelessRecipeResult(ShapelessRecipes shapelessRecipe) {
         @SuppressWarnings("unchecked")
         final List<ItemStack> recipeInput = shapelessRecipe.recipeItems;
         final ItemStack[] recipeArray = new ItemStack[10];
@@ -182,7 +180,16 @@ public class RecipeHelper {
             recipeArray[slot + 1] = item;
         }
 
-        return new ItemStack[][] {recipeArray};
+        return recipeArray;
+    }
+
+    /* This should only be called when every other mod has finished initialising. */
+    public static void setupInfo() {
+        final String[] oreDictNames = OreDictionary.getOreNames();
+
+        for (final String oreDictName : oreDictNames) {
+            oreDictMappings.put(OreDictionary.getOres(oreDictName), oreDictName);
+        }
     }
 
 }
