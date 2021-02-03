@@ -45,6 +45,8 @@ minecraft {
 // set java compiler options to display warnings
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked"
+    // Tells Gradle not to include debug information in the compiled .class files. This reduces the file size.	
+    options.debug = false
 }
 
 // display files which get compiled
