@@ -67,20 +67,29 @@ public class RecipeHelper {
             if (recipeSlot instanceof ArrayList) {
                 @SuppressWarnings("unchecked")
                 final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
+                final String oreDictName = oreDictMappings.get(list);
 
-                if (list.size() == 1) {
-                    recipeSlot = list.get(0);
-                } else {
-                    final String oreDictName = oreDictMappings.get(list);
+                if (oreDictName != null) {
+                    final ItemStack oreDictItem;
+                    final String appendToName;
 
-                    if (oreDictName != null) {
-                        final ItemStack wildcardItemOfThisArrayList = new ItemStack(ARG.wildcardItem);
-                        wildcardItemOfThisArrayList.setStackDisplayName("Any " + oreDictName);
-                        recipeSlot = wildcardItemOfThisArrayList;
+                    if (list.size() == 1) {
+                        oreDictItem = list.get(0).copy();
+
+                        if (oreDictItem.getDisplayName().replaceAll("\\s", "").equalsIgnoreCase(oreDictName)) {
+                            appendToName = oreDictItem.getDisplayName();
+                        } else {
+                            appendToName = oreDictItem.getDisplayName() + " (" + oreDictName + ")";
+                        }
                     } else {
-                        ARG.argLog.severe("Expected an OreDictionary entry for ArrayList " + list.toString() + " in ShapedOreRecipe for " + shapedOreRecipe.getRecipeOutput());
-                        return null;
+                        oreDictItem = new ItemStack(ARG.wildcardItem);
+                        appendToName = oreDictName;
                     }
+
+                    oreDictItem.setStackDisplayName("Any type of " + appendToName);
+                    recipeSlot = oreDictItem;
+                } else {
+                    recipeSlot = list.get(0).copy();
                 }
             }
 

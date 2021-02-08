@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
@@ -168,15 +169,18 @@ class RenderRecipe extends GuiContainer {
                 y = baseY;
             }
 
-            String name = entry.getKey();
+            drawItemStackAtPosition(entry.getValue(), x, y);
+            final String name = entry.getKey();
+            @SuppressWarnings("unchecked")
+            final
+            List<String> itemNameLines = fontRendererObj.listFormattedStringToWidth(name, (int) ((176 - 10 - 18) * (1F / scale)));
 
-            if (incredientList.size() >= 5) {
-                name = fontRendererObj.trimStringToWidth(name, (int) ((100 - 10 - 18) * (1F / scale)));
+            for (final Iterator<String> iterator = itemNameLines.iterator(); iterator.hasNext(); y += fontRendererObj.FONT_HEIGHT) {
+                final String itemNameLine = iterator.next();
+                fontRendererObj.drawString(itemNameLine, x + 18, y + 4, 0x404040);
             }
 
-            fontRendererObj.drawString(name, x + 18, y + 4, 0x404040);
-            drawItemStackAtPosition(entry.getValue(), x, y);
-            y += 18;
+            y += 9;
             item++;
         }
 
