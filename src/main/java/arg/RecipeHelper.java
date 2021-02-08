@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
@@ -56,55 +57,63 @@ public class RecipeHelper {
         final Object[] recipeInput = shapedOreRecipe.getInput();
         final ItemStack[] recipeArray = new ItemStack[10];
         recipeArray[0] = shapedOreRecipe.getRecipeOutput();
+        // We have to use reflection to get the dimensions of a ShapedOreRecipe. Is this really necessary???
+        final int reflectionWidth = ObfuscationReflectionHelper.getPrivateValue(ShapedOreRecipe.class, shapedOreRecipe, "width");
+        final int reflectionHeight = ObfuscationReflectionHelper.getPrivateValue(ShapedOreRecipe.class, shapedOreRecipe, "height");
+        // TODO Make this better
+        int slot = -1;
 
-        for (int slot = 0; slot < recipeInput.length; slot++) {
-            Object recipeSlot = recipeInput[slot];
+        for (int height = 0; height < reflectionHeight; height++) {
+            for (int width = 0; width < reflectionWidth; width++) {
+                slot++;
+                Object recipeSlot = recipeInput[slot];
 
-            if (recipeSlot == null) {
-                continue;
-            }
+                if (recipeSlot == null) {
+                    continue;
+                }
 
-            if (recipeSlot instanceof ArrayList) {
-                @SuppressWarnings("unchecked")
-                final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
-                final String oreDictName = oreDictMappings.get(list);
+                if (recipeSlot instanceof ArrayList) {
+                    @SuppressWarnings("unchecked")
+                    final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
+                    final String oreDictName = oreDictMappings.get(list);
 
-                if (oreDictName != null) {
-                    final ItemStack oreDictItem;
-                    final String appendToName;
+                    if (oreDictName != null) {
+                        final ItemStack oreDictItem;
+                        final String appendToName;
 
-                    if (list.size() == 1) {
-                        oreDictItem = list.get(0).copy();
+                        if (list.size() == 1) {
+                            oreDictItem = list.get(0).copy();
 
-                        if (oreDictItem.getDisplayName().replaceAll("\\s", "").equalsIgnoreCase(oreDictName)) {
-                            appendToName = oreDictItem.getDisplayName();
+                            if (oreDictItem.getDisplayName().replaceAll("\\s", "").equalsIgnoreCase(oreDictName)) {
+                                appendToName = oreDictItem.getDisplayName();
+                            } else {
+                                appendToName = oreDictItem.getDisplayName() + " (" + oreDictName + ")";
+                            }
                         } else {
-                            appendToName = oreDictItem.getDisplayName() + " (" + oreDictName + ")";
+                            oreDictItem = new ItemStack(ARG.wildcardItem);
+                            appendToName = oreDictName;
                         }
+
+                        oreDictItem.setStackDisplayName("Any type of " + appendToName);
+                        recipeSlot = oreDictItem;
                     } else {
-                        oreDictItem = new ItemStack(ARG.wildcardItem);
-                        appendToName = oreDictName;
+                        recipeSlot = list.get(0).copy();
+                    }
+                }
+
+                if (recipeSlot instanceof ItemStack) {
+                    ItemStack item = (ItemStack) recipeSlot;
+
+                    if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
+                        item = item.copy();
+                        item.setItemDamage(0);
                     }
 
-                    oreDictItem.setStackDisplayName("Any type of " + appendToName);
-                    recipeSlot = oreDictItem;
+                    recipeArray[(height * 3) + width + 1] = item;
                 } else {
-                    recipeSlot = list.get(0).copy();
+                    argLog.severe("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
+                    return null;
                 }
-            }
-
-            if (recipeSlot instanceof ItemStack) {
-                ItemStack item = (ItemStack) recipeSlot;
-
-                if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
-                    item = item.copy();
-                    item.setItemDamage(0);
-                }
-
-                recipeArray[slot + 1] = item;
-            } else {
-                argLog.warning("Slot " + (slot + 1) + " is type " + recipeSlot.getClass().getSimpleName());
-                return null;
             }
         }
 
