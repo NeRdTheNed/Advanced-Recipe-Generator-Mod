@@ -32,7 +32,6 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 public class RecipeHelper {
 
-    //static String[] oreDictNames;
     static HashMap<ArrayList<ItemStack>, String> oreDictMappings = new HashMap<ArrayList<ItemStack>, String>();
 
     public static ItemStack[] getRecipeArray(IRecipe irecipe) throws IllegalArgumentException, SecurityException, NoSuchFieldException {
