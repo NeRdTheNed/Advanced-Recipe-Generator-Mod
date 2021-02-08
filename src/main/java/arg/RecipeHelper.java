@@ -17,9 +17,11 @@ import static net.minecraftforge.oredict.OreDictionary.WILDCARD_VALUE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
@@ -39,18 +41,59 @@ public class RecipeHelper {
             return null;
         }
 
+        final ItemStack[] recipeArray;
+
         if ((irecipe instanceof ShapedRecipes)) {
-            return getShapedRecipeResult((ShapedRecipes) irecipe);
+            recipeArray = getShapedRecipeResult((ShapedRecipes) irecipe);
         } else if ((irecipe instanceof ShapelessRecipes)) {
-            return getShapelessRecipeResult((ShapelessRecipes) irecipe);
+            recipeArray = getShapelessRecipeResult((ShapelessRecipes) irecipe);
         } else if ((irecipe instanceof ShapedOreRecipe)) {
-            return getShapedOreRecipeResult((ShapedOreRecipe) irecipe);
+            recipeArray = getShapedOreRecipeResult((ShapedOreRecipe) irecipe);
         } else if ((irecipe instanceof ShapelessOreRecipe)) {
-            return getShapelessOreRecipeResult((ShapelessOreRecipe) irecipe);
+            recipeArray = getShapelessOreRecipeResult((ShapelessOreRecipe) irecipe);
+        } else {
+            argLog.warning("Unknown Type: " + irecipe.getClass().getSimpleName());
+            return null;
         }
 
-        argLog.warning("Unknown Type: " + irecipe.getClass().getSimpleName());
-        return null;
+        final LinkedHashMap<String, List<Integer>> wildcardItems = new LinkedHashMap<String, List<Integer>>();
+
+        for (int i = 1; i < recipeArray.length; i++) {
+            final ItemStack stack = recipeArray[i];
+
+            if (stack != null) {
+                final Item item = stack.getItem();
+
+                if (item instanceof WildcardItem) {
+                    final String name = stack.getDisplayName();
+                    List<Integer> locations = wildcardItems.get(name);
+
+                    if (locations == null) {
+                        locations = new ArrayList<Integer>();
+                        locations.add(i);
+                        wildcardItems.put(name, locations);
+                    } else {
+                        locations.add(i);
+                    }
+                }
+            }
+        }
+
+        final int amountOfWildcards = wildcardItems.size();
+
+        if (amountOfWildcards > 1) {
+            int currentWildcardNum = 0;
+
+            for (final List<Integer> locations : wildcardItems.values()) {
+                currentWildcardNum++;
+
+                for (final Integer location : locations) {
+                    recipeArray[location].setItemDamage(currentWildcardNum);
+                }
+            }
+        }
+
+        return recipeArray;
     }
 
     public static ItemStack[] getShapedOreRecipeResult(ShapedOreRecipe shapedOreRecipe) {
