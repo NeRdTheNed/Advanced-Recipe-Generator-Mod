@@ -15,10 +15,11 @@ package arg;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -161,19 +162,20 @@ class RenderRecipe extends GuiContainer {
         GL11.glScalef(scale, scale, 1.0F);
         int item = 0;
         int y = baseY;
+        final ArrayList<String> itemNames = new ArrayList<String>(incredientList.keySet());
+        Collections.sort(itemNames, String.CASE_INSENSITIVE_ORDER);
 
-        for (final Entry<String, ItemStack> entry : incredientList.entrySet()) {
+        for (final String itemName : itemNames) {
             final int x = baseX[incredientList.size() < 5 ? 0 : (item < (incredientList.size() / 2) ? 0 : 1)];
 
             if (incredientList.size() < 5 ? false : (item == (incredientList.size() / 2))) {
                 y = baseY;
             }
 
-            drawItemStackAtPosition(entry.getValue(), x, y);
-            final String name = entry.getKey();
+            drawItemStackAtPosition(incredientList.get(itemName), x, y);
             @SuppressWarnings("unchecked")
             final
-            List<String> itemNameLines = fontRendererObj.listFormattedStringToWidth(name, (int) ((176 - 10 - 18) * (1F / scale)));
+            List<String> itemNameLines = fontRendererObj.listFormattedStringToWidth(itemName, (int) ((176 - 10 - 18) * (1F / scale)));
 
             for (final Iterator<String> iterator = itemNameLines.iterator(); iterator.hasNext(); y += fontRendererObj.FONT_HEIGHT) {
                 final String itemNameLine = iterator.next();
