@@ -72,40 +72,14 @@ public class RecipeHelper {
                     continue;
                 }
 
-                getItem:
-
                 if (recipeSlot instanceof ArrayList) {
                     @SuppressWarnings("unchecked")
                     final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
 
                     if ((!ARG.displaySingleOreDictEntries) && (list.size() == 1)) {
                         recipeSlot = list.get(0).copy();
-                        break getItem;
-                    }
-
-                    final String oreDictName = oreDictMappings.get(list);
-
-                    if (oreDictName != null) {
-                        final ItemStack oreDictItem;
-                        final String appendToName;
-
-                        if (list.size() == 1) {
-                            oreDictItem = list.get(0).copy();
-
-                            if (oreDictItem.getDisplayName().replaceAll("\\s", "").equalsIgnoreCase(oreDictName)) {
-                                appendToName = oreDictItem.getDisplayName();
-                            } else {
-                                appendToName = oreDictItem.getDisplayName() + " (" + oreDictName + ")";
-                            }
-                        } else {
-                            oreDictItem = new ItemStack(ARG.wildcardItem);
-                            appendToName = oreDictName;
-                        }
-
-                        oreDictItem.setStackDisplayName("Any type of " + appendToName);
-                        recipeSlot = oreDictItem;
                     } else {
-                        recipeSlot = list.get(0).copy();
+                        recipeSlot = itemstackListToWildcardItemstack(list);
                     }
                 }
 
@@ -162,13 +136,14 @@ public class RecipeHelper {
             }
 
             if (recipeSlot instanceof ArrayList) {
-                final ArrayList<?> list = (ArrayList<?>) recipeSlot;
+                @SuppressWarnings("unchecked")
+                final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
 
-                if (list.size() > 1) {
-                    argLog.warning("Unhandled OreDictionary recipe: Slot-Array " + (slot + 1) + " has more then one item: " + list);
+                if ((!ARG.displaySingleOreDictEntries) && (list.size() == 1)) {
+                    recipeSlot = list.get(0).copy();
+                } else {
+                    recipeSlot = itemstackListToWildcardItemstack(list);
                 }
-
-                recipeSlot = list.get(0);
             }
 
             if (recipeSlot instanceof ItemStack) {
@@ -207,6 +182,33 @@ public class RecipeHelper {
         }
 
         return recipeArray;
+    }
+
+    public static ItemStack itemstackListToWildcardItemstack(ArrayList<ItemStack> list) {
+        final String oreDictName = oreDictMappings.get(list);
+
+        if (oreDictName != null) {
+            final ItemStack oreDictItem;
+            final String appendToName;
+
+            if (list.size() == 1) {
+                oreDictItem = list.get(0).copy();
+
+                if (oreDictItem.getDisplayName().replaceAll("\\s", "").equalsIgnoreCase(oreDictName)) {
+                    appendToName = oreDictItem.getDisplayName();
+                } else {
+                    appendToName = oreDictItem.getDisplayName() + " (" + oreDictName + ")";
+                }
+            } else {
+                oreDictItem = new ItemStack(ARG.wildcardItem);
+                appendToName = oreDictName;
+            }
+
+            oreDictItem.setStackDisplayName("Any type of " + appendToName);
+            return oreDictItem;
+        } else {
+            return list.get(0).copy();
+        }
     }
 
     /* This should only be called when every other mod has finished initialising. */
