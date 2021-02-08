@@ -72,9 +72,20 @@ public class RecipeHelper {
                     continue;
                 }
 
+                getItem:
+
                 if (recipeSlot instanceof ArrayList) {
                     @SuppressWarnings("unchecked")
                     final ArrayList<ItemStack> list = (ArrayList<ItemStack>) recipeSlot;
+
+                    if ((!ARG.displaySingleOreDictEntries) && (list.size() == 1)) {
+                        ARG.argLog.severe("!ARG.displaySingleOreDictEntries");
+                        recipeSlot = list.get(0).copy();
+                        break getItem;
+                    } else if (ARG.displaySingleOreDictEntries) {
+                        ARG.argLog.severe("!ARG.displaySingleOreDictEntries");
+                    }
+
                     final String oreDictName = oreDictMappings.get(list);
 
                     if (oreDictName != null) {

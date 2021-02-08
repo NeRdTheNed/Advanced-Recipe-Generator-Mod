@@ -1,0 +1,3 @@
+item.WildcardItem.name=?
+displaySingleOreDictEntries.tooltip=Show "Any type of (item)" on OreDictionary item groups with only a single entry.
+displaySingleOreDictEntries=Show single OreDictionary entries.

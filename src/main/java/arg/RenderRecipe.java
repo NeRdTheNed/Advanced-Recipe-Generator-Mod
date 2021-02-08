@@ -41,8 +41,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 class RenderRecipe extends GuiContainer {
-    public String name;
     private final HashMap<String, ItemStack> incredientList = new HashMap<String, ItemStack>();
+    public String name;
 
     @SuppressWarnings("rawtypes")
     public RenderRecipe(String name) {

@@ -17,12 +17,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
 
 import com.google.common.collect.Maps;
 
+import cpw.mods.fml.client.IModGuiFactory;
+import cpw.mods.fml.client.config.GuiConfig;
+import cpw.mods.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -36,6 +41,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -47,18 +53,43 @@ import net.minecraft.item.crafting.RecipesArmorDyes;
 import net.minecraft.item.crafting.RecipesMapCloning;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.ConfigCategory;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.common.config.Configuration;
 
-@Mod(modid = ARG.MOD_ID)
-public class ARG {
+@Mod(modid = ARG.MOD_ID, guiFactory = "arg.ARG")
+public class ARG implements IModGuiFactory {
+
+    public static final class Config extends GuiConfig {
+        public Config(GuiScreen g) {
+            super(g, new ConfigElement<ConfigCategory>(ARG.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(), MOD_ID, false, false, /* GuiConfig.getAbridgedConfigPath(MoreBows.config.toString()) */ MOD_ID);
+        }
+    }
 
     public static final String MOD_ID = "arg";
 
     public static Logger argLog = Logger.getLogger(MOD_ID);
 
-    public static int[] mapLoaded = { 0, 0 };
+    public static Configuration config;
+
+    public static boolean displaySingleOreDictEntries;
+
     public static boolean mapGenerated = false;
+    public static int[] mapLoaded = { 0, 0 };
 
     public static final Item wildcardItem = new WildcardItem();
+
+    private static final void syncConfig() {
+        displaySingleOreDictEntries = config.get(Configuration.CATEGORY_GENERAL, "displaySingleOreDictEntries", false).getBoolean();
+        config.save();
+    }
+
+    @SubscribeEvent
+    public final void configChange(OnConfigChangedEvent event) {
+        if (event.modID.equals(MOD_ID)) {
+            syncConfig();
+        }
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -147,6 +178,11 @@ public class ARG {
         }
     }
 
+    @Override
+    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement a) {
+        return null;
+    }
+
     private UniqueIdentifier getUniqueIdentifier(ItemStack itemStack) {
         if ((itemStack == null) || (itemStack.getItem() == null)) {
             return null;
@@ -160,10 +196,16 @@ public class ARG {
         }
     }
 
+    @Override
+    public void initialize(Minecraft a) {
+        /* This space left intentionally blank */
+    }
+
     @EventHandler
     public void load(FMLInitializationEvent evt) {
         argLog.info("Starting Advanced Recipe Generator\nCopyright (c) Flow86, 2012-2014");
         MinecraftForge.EVENT_BUS.register(this);
+        FMLCommonHandler.instance().bus().register(this);
         final File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/");
 
         if (file.exists()) {
@@ -176,8 +218,20 @@ public class ARG {
         }
     }
 
+    @Override
+    public Class<? extends GuiScreen> mainConfigGuiClass() {
+        return Config.class;
+    }
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        config = new Configuration(event.getSuggestedConfigurationFile());
+        syncConfig();
         GameRegistry.registerItem(wildcardItem, "WildcardItem");
+    }
+
+    @Override
+    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
+        return null;
     }
 }
