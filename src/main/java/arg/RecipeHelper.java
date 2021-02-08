@@ -106,18 +106,20 @@ public class RecipeHelper {
         final ItemStack[] recipeInput = shapedRecipe.recipeItems;
         final ItemStack[] recipeArray = new ItemStack[10];
         recipeArray[0] = shapedRecipe.getRecipeOutput();
+        int slot = -1;
 
-        for (int slot = 0; slot < recipeInput.length; slot++) {
-            ItemStack item = recipeInput[slot];
+        for (int height = 0; height < shapedRecipe.recipeHeight; height++) {
+            for (int width = 0; width < shapedRecipe.recipeWidth; width++) {
+                slot++;
+                ItemStack item = recipeInput[slot];
 
-            if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
-                item = item.copy();
-                item.setItemDamage(0);
+                if ((item != null) && (item.getItemDamage() == WILDCARD_VALUE)) {
+                    item = item.copy();
+                    item.setItemDamage(0);
+                }
+
+                recipeArray[(height * 3) + width + 1] = item;
             }
-
-            final int x = slot % shapedRecipe.recipeWidth;
-            final int y = slot / shapedRecipe.recipeWidth;
-            recipeArray[(x + (y * shapedRecipe.recipeWidth)) + 1] = item;
         }
 
         return recipeArray;
