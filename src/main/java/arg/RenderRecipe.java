@@ -75,7 +75,7 @@ class RenderRecipe extends GuiContainer {
             throw new RuntimeException("The recipes directory could not be created: " + dir);
         }
 
-        name = name.replace(" ", "");
+        name = name.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}]", "");
         int fileCheckCounter = 1;
         File file = new File(Minecraft.getMinecraft().mcDataDir, "recipes/" + subFolder + "/" + name + fileCheckCounter + ".png");
 
