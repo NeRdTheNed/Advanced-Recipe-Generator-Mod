@@ -28,7 +28,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -153,13 +152,13 @@ class RenderRecipe extends GuiContainer {
     @Override
     public void drawGuiContainerForegroundLayer(int i, int j) {
         super.drawGuiContainerForegroundLayer(i, j);
-        final String title = LanguageRegistry.instance().getStringLocalization(getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName());
-        fontRendererObj.drawString(title, getCenteredOffset(title, xSize), 5, 0x404040);
         final float scale = 3 / 4F;
         // since we scale by 1/2, we have to start on *2
         final int[] baseX = { (int) (10 * (1F / scale)), (int) (100 * (1F / scale)) };
         final int baseY = (int) (76 * (1F / scale));
         GL11.glScalef(scale, scale, 1.0F);
+        final String title = getCraftingContainer().craftResult.getStackInSlot(0).getDisplayName();
+        fontRendererObj.drawString(title, (getCenteredOffset(title, (int) (xSize * (1F / scale)))), (int) (7 * (1F / scale)), 0x404040);
         int item = 0;
         int y = baseY;
         final ArrayList<String> itemNames = new ArrayList<String>(incredientList.keySet());
