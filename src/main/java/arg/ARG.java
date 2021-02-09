@@ -164,7 +164,7 @@ public class ARG implements IModGuiFactory {
                         }
 
                         render.getCraftingContainer().craftResult.setInventorySlotContents(0, recipeInput[0]);
-                        render.draw(subFolder + "/" + recipeEntry.getKey().name);
+                        render.draw(subFolder + "/" + recipeEntry.getKey().name.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}]", ""));
                     } catch (final Exception e) {
                         argLog.severe("Exception thrown when trying to draw recipe for " + irecipe.getRecipeOutput().getDisplayName() + " of type" + irecipe.getClass().getName() + ":");
                         e.printStackTrace();
