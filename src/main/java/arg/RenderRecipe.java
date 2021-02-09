@@ -172,14 +172,14 @@ class RenderRecipe extends GuiContainer {
                 y = baseY;
             }
 
-            drawItemStackAtPosition(incredientList.get(itemName), x, y);
+            drawItemStackAtPosition(incredientList.get(itemName), x + 6, y - 4);
             @SuppressWarnings("unchecked")
             final
             List<String> itemNameLines = fontRendererObj.listFormattedStringToWidth(itemName, (int) ((176 - 10 - 18) * (1F / scale)));
 
             for (final Iterator<String> iterator = itemNameLines.iterator(); iterator.hasNext(); y += fontRendererObj.FONT_HEIGHT) {
                 final String itemNameLine = iterator.next();
-                fontRendererObj.drawString(itemNameLine, x + 18, y + 4, 0x404040);
+                fontRendererObj.drawString(itemNameLine, x + 26, y, 0x404040);
             }
 
             y += 9;
